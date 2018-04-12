@@ -25,7 +25,7 @@ class Plant {
     this.sproutGrowthSpeed = 0.25
     this.sproutGrowthEfficiency = 0.85
     this.energyUsedPerSproutGrowth = (1 + this.sproutGrowthSpeed) * ((1 - this.sproutGrowthEfficiency) + 1)
-    this.energyUsedPerSproutOnMaintainance = (0.1 * this.age) + 1
+    this.energyUsedPerSproutOnMaintainance = (0.1 * this.age) //+ 1
 
     this.tropism = new Vector3(0, -1, 0)
     this.branchDensity = 0.5

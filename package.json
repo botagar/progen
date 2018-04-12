@@ -1,17 +1,21 @@
 {
   "name": "progen",
   "version": "1.0.0",
-  "main": "main.js",
+  "main": "start.js",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
     "lint": "standard"
   },
   "devDependencies": {
-    "electron": "^1.8.4",
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "electron-compilers": "^5.9.0",
     "standard": "^11.0.1"
   },
   "dependencies": {
+    "electron": "^1.8.4",
+    "electron-compile": "^6.4.2",
     "random-seed": "^0.3.0",
     "three": "^0.91.0"
   }

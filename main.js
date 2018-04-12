@@ -1,6 +1,10 @@
 const { app, BrowserWindow } = require('electron')
+import { enableLiveReload } from 'electron-compile';
 const path = require('path')
 const url = require('url')
+
+
+enableLiveReload();
 
 app.commandLine.appendSwitch('enable-webassembly')
 
@@ -13,8 +17,8 @@ function createWindow() {
   mainWindow = new BrowserWindow({ width: 1366, height: 768 })
 
   // and load the index.html of the app. 
-    // pathname: path.join(__dirname, 'index.html'),
-    mainWindow.loadURL(url.format({
+  // pathname: path.join(__dirname, 'index.html'),
+  mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'plants', 'plant.html'),
     protocol: 'file:',
     slashes: true
