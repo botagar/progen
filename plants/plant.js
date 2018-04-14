@@ -25,7 +25,7 @@ class Plant {
     this.debug.growCallCount = 0
 
     this.RNG = RNG.create('Seed')
-    this.DNA = new DNA()
+    // this.DNA = new DNA()
 
     this.age = 1
     this.energy = 1000
@@ -95,8 +95,8 @@ class Plant {
     let growthDir = this.RNG.floatBetween(-halfSenseAngle, halfSenseAngle) + (Math.PI / 2)
     let growthHead = new Vector3(Math.cos(growthDir), Math.sin(growthDir), 0)
       .multiplyScalar(this.sproutGrowthSpeed)
-      .add(oldSprout.skeleton.end)
-    return new Sprout({ startPosition: oldSprout.skeleton.end, endPosition: growthHead, faceCount: 6 })
+      .add(oldSprout.guide.end)
+    return new Sprout({ startPosition: oldSprout.guide.end, endPosition: growthHead, faceCount: 6 })
   }
 }
 

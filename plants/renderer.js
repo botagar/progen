@@ -1,7 +1,6 @@
 
 let threeCanvas = require('./SceneComposer')
 let Plants = require('./plant')
-let THREE = require('three')
 
 var delay = 0
 var counter = 60 * delay

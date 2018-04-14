@@ -11,7 +11,7 @@ class SceneComposer {
     viewHeight = viewHeight || window.innerHeight
     aspectRatio = aspectRatio || (viewWidth / viewHeight)
     nearPlane = nearPlane || 0.1
-    farPlane = farPlane || 1000
+    farPlane = farPlane || 10000
 
     this.scene = new THREE.Scene()
     this.camera = new THREE.PerspectiveCamera(fov, aspectRatio, nearPlane, farPlane)
@@ -27,6 +27,8 @@ class SceneComposer {
 
   async setupScene () {
     let sky = await Skybox()
+    console.log('Sky incoming!')
+    console.log(sky)
     this.scene.add(sky)
     this.scene.add(Floor)
 
@@ -40,12 +42,10 @@ class SceneComposer {
     // this.scene.add(sun)
 
     var angledSun = new THREE.DirectionalLight(0xffff00, 2)
-    angledSun.position.set(-150, 200, 0)
+    angledSun.position.set(-25, 200, 150)
     angledSun.castShadow = true
     angledSun.shadow.mapSize.width = 512
     angledSun.shadow.mapSize.height = 512
-    // angledSun.shadow.camera.near = 0.5
-    // angledSun.shadow.camera.far = 500
     angledSun.shadow.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000)
     this.scene.add(angledSun)
 
@@ -54,11 +54,6 @@ class SceneComposer {
 
     // var ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.6); // soft white light
     // this.scene.add(ambientLight)
-
-    // var geometry = new THREE.CylinderGeometry(5, 5, 20, 32);
-    // var material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    // var cylinder = new THREE.Mesh(geometry, material);
-    // this.scene.add(cylinder);
 
     this.camera.position.set(5, 50, 150)
     this.camera.lookAt(new THREE.Vector3(0, 0, 0))

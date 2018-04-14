@@ -1,4 +1,4 @@
-import { Vector3, Line3, Mesh, MeshBasicMaterial, MeshLambertMaterial } from 'three'
+import { Vector3, Line3, FrontSide, Mesh, CylinderGeometry, MeshBasicMaterial, MeshLambertMaterial } from 'three'
 import { HightlightVerticies } from '../helpers/RenderUtils'
 
 class Sprout {
@@ -14,7 +14,7 @@ class Sprout {
 
     this.isAtMaxLength = false
     this.isLeader = true
-    this.skeleton = new Line3(startPosition, endPosition)
+    this.guide = new Line3(startPosition, endPosition)
     this.verticies = []
 
     // Want to be able to use this::GenerateVerticies() syntax. Keep an eye out on ES proposals
@@ -27,6 +27,9 @@ class Sprout {
     if (this.model) ret.remove = this.model
     this.model = generatedModel
     this._private.UpdateVerts()
+    this.model.onAfterRender = (renderer, scene, camera, geometry, material, group) => {
+      console.info(material.flatShading)
+    }
     return ret
   }
 
@@ -38,19 +41,19 @@ class Sprout {
   TryGrowBy(mm) {
     if (this.isAtMaxLength) return false
 
-    let currentLength = this.skeleton.distance()
+    let currentLength = this.guide.distance()
     if (currentLength >= this.maxLength) {
       this.isAtMaxLength = true
       return false
     }
 
-    let { start, end } = this.skeleton
+    let { start, end } = this.guide
     let diffVector = end.clone().sub(start)
     let { x, y, z } = diffVector
 
     let scale = (currentLength + mm) / currentLength
-    let growth = new THREE.Vector3((x * scale) - x, (y * scale) - y, (z * scale) - z)
-    this.skeleton.end.add(growth)
+    let growth = new Vector3((x * scale) - x, (y * scale) - y, (z * scale) - z)
+    this.guide.end.add(growth)
     this._private.UpdateVerts()
     this.model.geometry.verticesNeedUpdate = true
     return true
@@ -59,14 +62,14 @@ class Sprout {
   _private = {
     // Private functions hack
     GenerateMesh: () => {
-      let sproutGeometry = new THREE.CylinderGeometry(this.startDiameter, this.endDiameter, this.skeleton.distance(), this.faceCount)
+      let sproutGeometry = new CylinderGeometry(this.startDiameter, this.endDiameter, this.guide.distance(), this.faceCount)
       let verts = sproutGeometry.vertices
       let bottomCenterVect = verts[verts.length - 1]
       sproutGeometry.translate(0, -bottomCenterVect.y, 0)
 
       let materialConfig = {
         color: 0xaf6c15,
-        side: THREE.FrontSide,
+        side: FrontSide,
         transparent: true,
         opacity: 0.8,
         // wireframe: true
@@ -76,7 +79,7 @@ class Sprout {
       let lambertMaterial = new MeshLambertMaterial(materialConfig)
 
       let mesh = new Mesh(sproutGeometry, lambertMaterial)
-      let { x, y, z } = this.skeleton.start
+      let { x, y, z } = this.guide.start
       mesh.position.set(x, y, z)
       mesh.castShadow = true
       mesh.receiveShadow = true
@@ -91,8 +94,8 @@ class Sprout {
       let topCircleVerts = verts.slice(0, this.faceCount)
       topCircleVerts.push(centerTopVert)
 
-      let desiredLength = this.skeleton.distance()
-      let { start, end } = this.skeleton
+      let desiredLength = this.guide.distance()
+      let { start, end } = this.guide
       let skeleDiff = end.clone().sub(start.clone())
       let diff = centerTopVert.clone().sub(skeleDiff)
       topCircleVerts.forEach(vert => {
