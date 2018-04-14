@@ -1,3 +1,5 @@
 var appRoot = __dirname
- 
-require('electron-compile').init(appRoot, require.resolve('./main'));
+
+require('babel-core/register')
+require('babel-polyfill')
+require('electron-compile').init(appRoot, require.resolve('./main'))

@@ -1,10 +1,9 @@
 const { app, BrowserWindow } = require('electron')
-import { enableLiveReload } from 'electron-compile';
+import { enableLiveReload } from 'electron-compile'
 const path = require('path')
 const url = require('url')
 
-
-enableLiveReload();
+enableLiveReload()
 
 app.commandLine.appendSwitch('enable-webassembly')
 
@@ -12,11 +11,11 @@ app.commandLine.appendSwitch('enable-webassembly')
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 
-function createWindow() {
+function createWindow () {
   // Create the browser window.
   mainWindow = new BrowserWindow({ width: 1366, height: 768 })
 
-  // and load the index.html of the app. 
+  // and load the index.html of the app.
   // pathname: path.join(__dirname, 'index.html'),
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'plants', 'plant.html'),
@@ -26,7 +25,7 @@ function createWindow() {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
-
+  mainWindow.maximize()
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows

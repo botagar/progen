@@ -10,22 +10,29 @@
 // Bud Perception
 // Other stuff about flowers, fruiting and seeds
 
+import DNA from './dna'
+import { HightlightVerticies } from './helpers/RenderUtils'
+import Sprout from './models/sprout'
+
 let THREE = require('three')
-let Math2 = require('./MathGen')
 let RNG = require('random-seed')
 let Stems = require('./stem')
 let { Vector2, Vector3 } = THREE
 
 class Plant {
   constructor(dna) {
+    this.debug = {}
+    this.debug.growCallCount = 0
+
     this.RNG = RNG.create('Seed')
+    this.DNA = new DNA()
 
     this.age = 1
     this.energy = 1000
     this.sproutGrowthSpeed = 0.25
     this.sproutGrowthEfficiency = 0.85
     this.energyUsedPerSproutGrowth = (1 + this.sproutGrowthSpeed) * ((1 - this.sproutGrowthEfficiency) + 1)
-    this.energyUsedPerSproutOnMaintainance = (0.1 * this.age) //+ 1
+    this.energyUsedPerSproutOnMaintainance = (0.1 * this.age) // + 1
 
     this.tropism = new Vector3(0, -1, 0)
     this.branchDensity = 0.5
@@ -38,16 +45,20 @@ class Plant {
     this.branchingAngles = 90
     this.budPerceptionArcAngle = 45 * Math.PI / 180
 
-    let trunk = new Stems.Stem(new Vector3(), new Vector3(0, 1, 0).multiplyScalar(this.sproutGrowthSpeed), 50, 0xff0000)
-      .limitSize(this.maxShootLength)
-    this.stems = [trunk]
+    let halfSenseAngle = this.budPerceptionArcAngle / 2
+    let growthDir = this.RNG.floatBetween(-halfSenseAngle, halfSenseAngle) + (Math.PI / 2)
+    let growthHead = new Vector3(Math.cos(growthDir), Math.sin(growthDir), 0)
+      .multiplyScalar(this.sproutGrowthSpeed)
+    let seed = new Sprout({ startPosition: new Vector3(), endPosition: growthHead, faceCount: 6 })
+    this.sprouts = [seed]
     this.roots = []
   }
 
   addSelfToScene(scene) {
     this.scene = scene
-    for (let stem of this.stems) {
-      scene.add(stem.getModel())
+    for (let sprout of this.sprouts) {
+      let sproutMesh = sprout.getModel().add
+      scene.add(sproutMesh)
     }
   }
 
@@ -55,26 +66,27 @@ class Plant {
   deserialise() { }
 
   grow() {
+    this.debug.growCallCount += 1
     if (this.energy <= 0) {
       console.warn('plant has died')
       return false
     }
-    for (let stem of this.stems) {
-      if (stem.isFullyGrown() && stem.isEnd) {
-        let newSprout = this._growNewSprout(stem)
-        this.scene.add(newSprout.getModel())
-        this.stems.push(newSprout)
-        stem.isEnd = false
-        console.log(`Energy is at: ${this.energy}`)
-      }
-
-      if (stem.isEnd) {
-        stem.growBy(this.sproutGrowthSpeed)
-        this.energy -= this.energyUsedPerSproutGrowth
-      } else {
+    let nursury = []
+    for (let sprout of this.sprouts) {
+      let didSproutGrow = sprout.TryGrow()
+      if (!didSproutGrow && sprout.isLeader) {
         this.energy -= this.energyUsedPerSproutOnMaintainance
+        
+        let newSprout = this._growNewSprout(sprout)
+        this.scene.add(newSprout.getModel().add)
+        nursury.push(newSprout)
+        sprout.isLeader = false
+      } else {
+        this.energy -= this.energyUsedPerSproutGrowth
       }
     }
+    this.sprouts = this.sprouts.concat(nursury)
+    // console.log(`Energy is at: ${this.energy} dbg: draw calls ${this.debug.growCallCount}`)
     return true
   }
 
@@ -83,8 +95,8 @@ class Plant {
     let growthDir = this.RNG.floatBetween(-halfSenseAngle, halfSenseAngle) + (Math.PI / 2)
     let growthHead = new Vector3(Math.cos(growthDir), Math.sin(growthDir), 0)
       .multiplyScalar(this.sproutGrowthSpeed)
-      .add(oldSprout.endPoint)
-    return new Stems.Stem(oldSprout.endPoint, growthHead, 50, 0x00ff00).limitSize(this.maxShootLength)
+      .add(oldSprout.skeleton.end)
+    return new Sprout({ startPosition: oldSprout.skeleton.end, endPosition: growthHead, faceCount: 6 })
   }
 }
 
