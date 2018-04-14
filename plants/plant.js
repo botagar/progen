@@ -20,7 +20,7 @@ let Stems = require('./stem')
 let { Vector2, Vector3 } = THREE
 
 class Plant {
-  constructor(dna) {
+  constructor (dna) {
     this.debug = {}
     this.debug.growCallCount = 0
 
@@ -54,7 +54,7 @@ class Plant {
     this.roots = []
   }
 
-  addSelfToScene(scene) {
+  addSelfToScene (scene) {
     this.scene = scene
     for (let sprout of this.sprouts) {
       let sproutMesh = sprout.getModel().add
@@ -62,10 +62,10 @@ class Plant {
     }
   }
 
-  serialise() { }
-  deserialise() { }
+  serialise () { }
+  deserialise () { }
 
-  grow() {
+  grow () {
     this.debug.growCallCount += 1
     if (this.energy <= 0) {
       console.warn('plant has died')
@@ -76,7 +76,7 @@ class Plant {
       let didSproutGrow = sprout.TryGrow()
       if (!didSproutGrow && sprout.isLeader) {
         this.energy -= this.energyUsedPerSproutOnMaintainance
-        
+
         let newSprout = this._growNewSprout(sprout)
         this.scene.add(newSprout.getModel().add)
         nursury.push(newSprout)
@@ -90,7 +90,7 @@ class Plant {
     return true
   }
 
-  _growNewSprout(oldSprout) {
+  _growNewSprout (oldSprout) {
     let halfSenseAngle = this.budPerceptionArcAngle / 2
     let growthDir = this.RNG.floatBetween(-halfSenseAngle, halfSenseAngle) + (Math.PI / 2)
     let growthHead = new Vector3(Math.cos(growthDir), Math.sin(growthDir), 0)

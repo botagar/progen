@@ -21,6 +21,7 @@ class SceneComposer {
     this.renderer.setClearColor(0x000000, 0)
     this.renderer.shadowMap.enabled = true
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap // default THREE.PCFShadowMap
+
     document.getElementById(containerId).appendChild(this.renderer.domElement)
   }
 
@@ -33,15 +34,23 @@ class SceneComposer {
     hemiLight.position.set(0, 50, 0)
     this.scene.add(hemiLight)
 
-    var sun = new THREE.PointLight(0xffef68, 10, 1000, 2)
-    sun.position.set(0, 100, 0)
-    sun.castShadow = true
-    this.scene.add(sun)
+    // var sun = new THREE.PointLight(0xffef68, 10, 1000, 2)
+    // sun.position.set(0, 100, 0)
+    // sun.castShadow = true
+    // this.scene.add(sun)
 
-    // var directionalLight = new THREE.DirectionalLight(0xffff00, 1);
-    // directionalLight.position.set(-10, 30, -10);
-    // directionalLight.castShadow = true
-    // this.scene.add(directionalLight);
+    var angledSun = new THREE.DirectionalLight(0xffff00, 2)
+    angledSun.position.set(-150, 200, 0)
+    angledSun.castShadow = true
+    angledSun.shadow.mapSize.width = 512
+    angledSun.shadow.mapSize.height = 512
+    // angledSun.shadow.camera.near = 0.5
+    // angledSun.shadow.camera.far = 500
+    angledSun.shadow.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000)
+    this.scene.add(angledSun)
+
+    var helper = new THREE.CameraHelper(angledSun.shadow.camera)
+    this.scene.add(helper)
 
     // var ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.6); // soft white light
     // this.scene.add(ambientLight)
@@ -50,17 +59,6 @@ class SceneComposer {
     // var material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     // var cylinder = new THREE.Mesh(geometry, material);
     // this.scene.add(cylinder);
-
-    var sphereMaterial =
-      new THREE.MeshLambertMaterial(
-        {
-          color: 0x0000CC
-        })
-    var sphere = new THREE.Mesh(new THREE.SphereGeometry(5, 8, 8), sphereMaterial)
-    sphere.position.set(-100, 20, -100)
-    sphere.castShadow = true
-    sphere.receiveShadow = false // default
-    this.scene.add(sphere)
 
     this.camera.position.set(5, 50, 150)
     this.camera.lookAt(new THREE.Vector3(0, 0, 0))

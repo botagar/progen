@@ -5,7 +5,7 @@ let material = new THREE.MeshLambertMaterial({
   color: 0x000F00,
   side: THREE.FrontSide,
   transparent: true,
-  opacity: 0.5,
+  opacity: 0.5
   // wireframe: true
 })
 var plane = new THREE.Mesh(geo, material)
