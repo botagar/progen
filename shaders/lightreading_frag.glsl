@@ -132,30 +132,16 @@ float getShadowMask() {
 }
 
 void main() {
-
     vec3 lightDir = directionalLights[0].direction;
     vec3 lightColor = directionalLights[0].color;
-    // light = normalize(lightDir);
     float dProd = max(0.0, dot(vNormal, lightDir));
-    vec3 effectiveLight = lightColor * dProd;
+    vec3 effectiveLight = vec3(1, 1, 1) * dProd;
 
     vec2 position = -1.0 + 2.0 * vUv;
     float red = abs(sin(position.x * position.y + time / 5.0)) * dProd;
     float green = abs(sin(position.x * position.y + time / 4.0)) * dProd;
     float blue = abs(sin(position.x * position.y + time / 3.0 )) * dProd;
 
-    // gl_FragColor = vec4(red, green, blue, 1.0);
-    // gl_FragColor = vec4(effectiveLight, 1.0);
-    // if (directionalLights[0].shadow == 1) 
-    // {
-    // gl_FragColor = vec4(1,0,1,1);
-    // }
-    // else
-    // {
-    // gl_FragColor = vec4(1,1,1,1);
-    // }
-
-    // reflectedLight.directDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb ) * getShadowMask();
     vec3 maskedLight = vec3(effectiveLight * getShadowMask());
     gl_FragColor = vec4(maskedLight, 1);
 }
