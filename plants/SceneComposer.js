@@ -111,8 +111,8 @@ class SceneComposer {
       minFilter: THREE.LinearFilter,
       stencilBuffer: false,
       depthBuffer: false
-    };
-    let renderTarget = new THREE.WebGLRenderTarget(imageWidth, imageHeight, renderTargetParams);
+    }
+    let renderTarget = new THREE.WebGLRenderTarget(imageWidth, imageHeight, renderTargetParams)
     let orthoCam = new THREE.OrthographicCamera(imageWidth / - 2,
       imageWidth / 2,
       imageHeight / 2,
@@ -139,7 +139,6 @@ class SceneComposer {
     let outMaterial = new THREE.MeshLambertMaterial({
       map: outTexture
     })
-    console.log(outMaterial.__webglFramebuffer)
     let renderOut = new THREE.Mesh(textureDisplayGeo, outMaterial)
     renderOut.rotateX(-Math.PI / 2)
     renderOut.position.set(0, 1, 15)
