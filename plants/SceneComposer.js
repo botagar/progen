@@ -1,4 +1,5 @@
 import 'babel-polyfill'
+import fs from 'fs'
 import * as THREE from 'three'
 import ShadowMapViewer from './helpers/ShadowMapViewer'
 import Skybox from './Skybox'
@@ -37,11 +38,6 @@ class SceneComposer {
     hemiLight.position.set(0, 50, 0)
     this.scene.add(hemiLight)
 
-    // var sun = new THREE.PointLight(0xffef68, 10, 1000, 2)
-    // sun.position.set(0, 100, 0)
-    // sun.castShadow = true
-    // this.scene.add(sun)
-
     this.angledSun = new THREE.DirectionalLight(0xffff00, 2)
     this.angledSun.position.set(-25, 200, 150)
     this.angledSun.castShadow = true
@@ -50,16 +46,11 @@ class SceneComposer {
     this.angledSun.shadow.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000)
     this.scene.add(this.angledSun)
 
-    // this.dirLightShadowMapViewer = new ShadowMapViewer(this.angledSun, this.camera);
-    // this.dirLightShadowMapViewer.position.x = 10;
-    // this.dirLightShadowMapViewer.position.y = 10;
-    // this.dirLightShadowMapViewer.size.width = 256;
-    // this.dirLightShadowMapViewer.size.height = 256;
-    // this.dirLightShadowMapViewer.update(); //Required when setting position or size directly
-
-
     var helper = new THREE.CameraHelper(this.angledSun.shadow.camera)
     this.scene.add(helper)
+
+    let vertShader = fs.readFileSync( __dirname + '/../shaders/lightreading_vert.glsl', { encoding: 'utf8' })
+    let fragShader = fs.readFileSync( __dirname + '/../shaders/lightreading_frag.glsl', { encoding: 'utf8' })
 
     this.uniforms = THREE.UniformsUtils.merge(
       [THREE.UniformsLib['lights'],
@@ -73,8 +64,8 @@ class SceneComposer {
         {
           defines: { 'MAX_DIR_LIGHTS': 1 },
           uniforms: this.uniforms,
-          vertexShader: document.getElementById('cubeVertexShader').textContent,
-          fragmentShader: document.getElementById('cubeFragmentShader').textContent,
+          vertexShader: vertShader,
+          fragmentShader: fragShader,
           lights: true
         })
         let sphereMat = new THREE.MeshLambertMaterial({
@@ -122,6 +113,4 @@ class SceneComposer {
   }
 }
 
-module.exports = {
-  SceneComposer
-}
+export default SceneComposer

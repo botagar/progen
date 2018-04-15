@@ -27,9 +27,9 @@ class Sprout {
     if (this.model) ret.remove = this.model
     this.model = generatedModel
     this._private.UpdateVerts()
-    this.model.onAfterRender = (renderer, scene, camera, geometry, material, group) => {
-      //console.info(material.flatShading)
-    }
+    // this.model.onAfterRender = (renderer, scene, camera, geometry, material, group) => {
+    //   //console.info(material.flatShading)
+    // }
     return ret
   }
 

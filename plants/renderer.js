@@ -1,6 +1,6 @@
 
 import * as THREE from 'three'
-let threeCanvas = require('./SceneComposer')
+import SceneComposer from './SceneComposer'
 let Plants = require('./plant')
 
 var delay = 0
@@ -22,7 +22,7 @@ const tick = () => {
   counter += 1
 }
 
-let sceneComposer = new threeCanvas.SceneComposer()
+let sceneComposer = new SceneComposer()
 sceneComposer.setupScene()
 let testPlant = new Plants.Plant()
 
