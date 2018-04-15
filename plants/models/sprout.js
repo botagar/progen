@@ -28,7 +28,7 @@ class Sprout {
     this.model = generatedModel
     this._private.UpdateVerts()
     this.model.onAfterRender = (renderer, scene, camera, geometry, material, group) => {
-      console.info(material.flatShading)
+      //console.info(material.flatShading)
     }
     return ret
   }

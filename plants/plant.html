@@ -8,6 +8,39 @@
 
 <body>
   <div id="three-viewport"></div>
+  <script id="cubeVertexShader" type="x-shader/x-vertex">
+    uniform float time;
+    attribute float displacement;
+    varying vec3 vNormal;
+    varying vec2 vUv;
+
+    void main() 
+    {
+      vUv = uv;
+      vNormal = normal;
+      vec3 newPosition = position + normal * vec3(2.0 * sin(displacement + time));
+      vec4 modelViewPosition = modelViewMatrix * vec4(newPosition, 1.0);
+      gl_Position = projectionMatrix * modelViewPosition;
+    }
+  </script>
+  <script id="cubeFragmentShader" type="x-shader/x-fragment">
+    uniform float time;
+    varying vec3 vNormal;
+    varying vec2 vUv;
+
+    void main() {
+      vec3 light = vec3(0.5, 0.2, 1.0);
+      light = normalize(light);
+      float dProd = max(0.0, dot(vNormal, light));
+
+      vec2 position = -1.0 + 2.0 * vUv;
+      float red = abs(sin(position.x * position.y + time / 5.0)) * dProd;
+      float green = abs(sin(position.x * position.y + time / 4.0)) * dProd;
+      float blue = abs(sin(position.x * position.y + time / 3.0 )) * dProd;
+
+      gl_FragColor = vec4(red, green, blue, 1.0);
+    }
+  </script>
   <script src="renderer.js"></script>
 </body>
 
