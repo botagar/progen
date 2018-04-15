@@ -1,5 +1,6 @@
 import 'babel-polyfill'
 import * as THREE from 'three'
+import ShadowMapViewer from './helpers/ShadowMapViewer'
 import Skybox from './Skybox'
 import Floor from './FloorPlane'
 
@@ -41,26 +42,43 @@ class SceneComposer {
     // sun.castShadow = true
     // this.scene.add(sun)
 
-    var angledSun = new THREE.DirectionalLight(0xffff00, 2)
-    angledSun.position.set(-25, 200, 150)
-    angledSun.castShadow = true
-    angledSun.shadow.mapSize.width = 512
-    angledSun.shadow.mapSize.height = 512
-    angledSun.shadow.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000)
-    this.scene.add(angledSun)
+    this.angledSun = new THREE.DirectionalLight(0xffff00, 2)
+    this.angledSun.position.set(-25, 200, 150)
+    this.angledSun.castShadow = true
+    this.angledSun.shadow.mapSize.width = 512
+    this.angledSun.shadow.mapSize.height = 512
+    this.angledSun.shadow.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000)
+    this.scene.add(this.angledSun)
 
-    var helper = new THREE.CameraHelper(angledSun.shadow.camera)
+    // this.dirLightShadowMapViewer = new ShadowMapViewer(this.angledSun, this.camera);
+    // this.dirLightShadowMapViewer.position.x = 10;
+    // this.dirLightShadowMapViewer.position.y = 10;
+    // this.dirLightShadowMapViewer.size.width = 256;
+    // this.dirLightShadowMapViewer.size.height = 256;
+    // this.dirLightShadowMapViewer.update(); //Required when setting position or size directly
+
+
+    var helper = new THREE.CameraHelper(this.angledSun.shadow.camera)
     this.scene.add(helper)
 
-    this.uniforms = {
-      time: { type: "f", value: 0 }
-    }
+    this.uniforms = THREE.UniformsUtils.merge(
+      [THREE.UniformsLib['lights'],
+      {
+        time: { type: "f", value: 0 }
+      }
+      ]
+    )
     let sphereMaterial =
       new THREE.ShaderMaterial(
         {
+          defines: { 'MAX_DIR_LIGHTS': 1 },
           uniforms: this.uniforms,
           vertexShader: document.getElementById('cubeVertexShader').textContent,
-          fragmentShader: document.getElementById('cubeFragmentShader').textContent
+          fragmentShader: document.getElementById('cubeFragmentShader').textContent,
+          lights: true
+        })
+        let sphereMat = new THREE.MeshLambertMaterial({
+          color: 0x00ff00
         })
     let sphereGeometry = new THREE.SphereBufferGeometry(5, 8, 8)
     let sphereVertexDisplacements = new Float32Array(sphereGeometry.attributes.position.count)
@@ -68,18 +86,29 @@ class SceneComposer {
       array[index] = Math.random() * 2
     })
     sphereGeometry.addAttribute('displacement', new THREE.BufferAttribute(sphereVertexDisplacements, 1))
-    
+
     let sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
     sphere.position.set(-20, 20, -20)
     sphere.castShadow = true
-    sphere.receiveShadow = false // default
+    sphere.receiveShadow = true // default
     this.scene.add(sphere)
+
+    let squareGeom = new THREE.CubeGeometry(5,5,5)
+    let squareMat = new THREE.MeshLambertMaterial({
+      color: 0xff0000
+    })
+    let square = new THREE.Mesh(squareGeom, squareMat)
+    square.position.set(-20, 30, -11)
+    square.castShadow = true
+    square.receiveShadow = true
+    this.scene.add(square)
 
     // var ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.6); // soft white light
     // this.scene.add(ambientLight)
 
-    this.camera.position.set(5, 50, 150)
-    this.camera.lookAt(new THREE.Vector3(0, 0, 0))
+    this.camera.position.set(5, 30, 30)
+    // this.camera.lookAt(new THREE.Vector3(0, 0, 0))
+    this.camera.lookAt(square.position)
   }
 
   addToScene(object) {
@@ -87,7 +116,8 @@ class SceneComposer {
   }
 
   render() {
-    this.uniforms.time.value += (1/60)*5;
+    // this.dirLightShadowMapViewer.render( this.renderer );
+    this.uniforms.time.value += (1 / 60) * 5;
     this.renderer.render(this.scene, this.camera)
   }
 }

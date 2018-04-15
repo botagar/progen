@@ -1,4 +1,5 @@
 
+import * as THREE from 'three'
 let threeCanvas = require('./SceneComposer')
 let Plants = require('./plant')
 
@@ -26,6 +27,5 @@ sceneComposer.setupScene()
 let testPlant = new Plants.Plant()
 
 testPlant.addSelfToScene(sceneComposer.scene)
-
 animationLoopId = window.requestAnimationFrame(tick)
 // cancelAnimationFrame(animationLoopId);
