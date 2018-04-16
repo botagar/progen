@@ -1,3 +1,4 @@
+import fs from 'fs'
 import * as THREE from 'three'
 import RNG from 'random-seed'
 
@@ -12,23 +13,48 @@ class Leaf {
 
   GetModel() {
     this.model = this.GenerateMesh()
+    this.lightModel = this.GenerateLightMesh()
     return this.model
   }
 
   GenerateMesh() {
-    var leafGeometry = new THREE.PlaneBufferGeometry(this.width, this.length, this.resolution, this.resolution)
-    let leafMaterial = new THREE.MeshLambertMaterial({
+    let leafGeometry = new THREE.PlaneBufferGeometry(this.width, this.length, this.resolution, this.resolution)
+    let leafVisibleMaterial = new THREE.MeshLambertMaterial({
       color: 0x00FF00,
       side: THREE.DoubleSide
     })
-    var leafMesh = new THREE.Mesh(leafGeometry, leafMaterial)
-    leafMesh.rotateX(-Math.PI / 2)
+    let visibleLeafMesh = new THREE.Mesh(leafGeometry, leafVisibleMaterial)
+    visibleLeafMesh.rotateX(-Math.PI / 2)
     let { x, y, z } = this.position
-    leafMesh.position.set(x, y, z)
-    leafMesh.castShadow = true
-    leafMesh.receiveShadow = true
-    leafMesh.name = this.name
-    return leafMesh
+    visibleLeafMesh.position.set(x, y, z)
+    visibleLeafMesh.castShadow = true
+    visibleLeafMesh.receiveShadow = true
+    visibleLeafMesh.name = this.name
+    return visibleLeafMesh
+  }
+
+  GenerateLightMesh() {
+    let vertShader = fs.readFileSync(__dirname + '/../../shaders/leaf_vert.glsl', { encoding: 'utf8' })
+    let fragShader = fs.readFileSync(__dirname + '/../../shaders/leaf_frag.glsl', { encoding: 'utf8' })
+    let uniforms = THREE.UniformsUtils.merge([
+      THREE.UniformsLib['lights'],
+      {
+        time: { type: "f", value: 0 }
+      }
+    ])
+    let lightMaterial = new THREE.ShaderMaterial({
+      uniforms: uniforms,
+      vertexShader: vertShader,
+      fragmentShader: fragShader,
+      lights: true
+    })
+    let lightMesh = new THREE.Mesh(this.model.geometry, lightMaterial)
+    let { x, y, z } = this.position
+    lightMesh.position.set(x, y, z)
+    lightMesh.rotateX(-Math.PI / 2)
+    lightMesh.receiveShadow = true
+    lightMesh.visible = false
+    return lightMesh
   }
 
   ReadLightInformation(renderer, scene, camera, lightSource, debug) {
@@ -37,7 +63,6 @@ class Leaf {
       let cameraHelper = new THREE.CameraHelper(camera)
       scene.add(cameraHelper)
     }
-    console.log(lightSource)
     let vectorToLight = (lightSource.position.clone().sub(this.model.position)).normalize()
     // camera.position.add(vectorToLight.multiplyScalar(1))
     // let lightReadingCamPos = vectorToLight.add(this.model.position)
@@ -48,10 +73,14 @@ class Leaf {
       depthBuffer: false
     }
     let renderTarget = new THREE.WebGLRenderTarget(this.width, this.length, renderTargetParams)
+    this.model.visible = false
+    this.lightModel.visible = true
     renderer.render(scene, camera, renderTarget, true)
 
     var bufferData = new Uint8Array(this.width * this.length * 4)
     renderer.readRenderTargetPixels(renderTarget, 0, 0, this.width, this.length, bufferData)
+    this.model.visible = true
+    this.lightModel.visible = false
 
     return bufferData
   }
@@ -62,11 +91,11 @@ class Leaf {
     camera.top = this.length / 2
     camera.bottom = this.length / -2
     camera.near = 0
-    camera.far = 0.02
+    camera.far = 3
     let { x, y, z } = this.model.position
     camera.position.set(x, y, z)
     let normalVector = new THREE.Vector3(0, 0, 1).applyQuaternion(this.model.quaternion)
-    camera.position.add(normalVector.multiplyScalar(0.01))
+    camera.position.add(normalVector.multiplyScalar(1))
     camera.lookAt(this.model.position)
   }
 }

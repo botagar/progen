@@ -4,9 +4,27 @@
 <head>
   <meta charset="UTF-8">
   <title>Plants</title>
+  <style>
+    .stats {
+      display: flex;
+      position: absolute;
+    }
+    #fps>div {
+      display: inline;
+      position: relative !important;
+    }
+    #mem>div {
+      display: inline;
+      position: relative !important;      
+    }
+  </style>
 </head>
 
 <body>
+  <div class="stats">
+    <div id="fps"></div>
+    <div id="mem"></div>
+  </div>
   <div id="three-viewport"></div>
   <script src="renderer.js"></script>
 </body>

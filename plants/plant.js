@@ -29,7 +29,7 @@ class Plant {
 
     this.age = 1
     this.energy = 1000
-    this.sproutGrowthSpeed = 0.25
+    this.sproutGrowthSpeed = 0.25 * 10
     this.sproutGrowthEfficiency = 0.85
     this.energyUsedPerSproutGrowth = (1 + this.sproutGrowthSpeed) * ((1 - this.sproutGrowthEfficiency) + 1)
     this.energyUsedPerSproutOnMaintainance = (0.1 * this.age) // + 1

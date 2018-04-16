@@ -46,14 +46,11 @@ class SceneComposer {
     this.angledSun.shadow.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000)
     this.scene.add(this.angledSun)
 
-    // var helper = new THREE.CameraHelper(this.angledSun.shadow.camera)
-    // this.scene.add(helper)
-
     this.lightingSpike()
 
-    this.camera.position.set(50, 50, 5)
-    // this.camera.lookAt(new THREE.Vector3(0, 0, 0))
-    this.camera.lookAt(this.sphere.position)
+    this.camera.position.set(20, 50, 150)
+    this.camera.lookAt(new THREE.Vector3(5, 5, 5))
+    // this.camera.lookAt(this.sphere.position)
   }
 
   lightingSpike() {
@@ -143,6 +140,20 @@ class SceneComposer {
     renderOut.rotateX(-Math.PI / 2)
     renderOut.position.set(0, 1, 15)
     this.scene.add(renderOut)
+
+
+    let leafGeometry = new THREE.PlaneBufferGeometry(2, 4, 1, 1)
+    let leafVisibleMaterial = new THREE.MeshLambertMaterial({
+      color: 0x00FF00,
+      side: THREE.DoubleSide
+    })
+    let visibleLeafMesh = new THREE.Mesh(leafGeometry, leafVisibleMaterial)
+    visibleLeafMesh.rotateX(-Math.PI / 2)
+    visibleLeafMesh.position.set(5, 7, 5)
+    visibleLeafMesh.castShadow = true
+    visibleLeafMesh.receiveShadow = true
+    this.scene.add(visibleLeafMesh)
+
     this.render()
   }
 
@@ -152,7 +163,7 @@ class SceneComposer {
 
   render() {
     // this.dirLightShadowMapViewer.render( this.renderer );
-    this.uniforms.time.value += (1 / 60) * 5;
+    // this.uniforms.time.value += (1 / 60) * 5;
     this.renderer.render(this.scene, this.camera)
   }
 }

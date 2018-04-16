@@ -1,42 +1,53 @@
 
 import * as THREE from 'three'
+import Stats from 'stats.js'
 import SceneComposer from './SceneComposer'
 import Leaf from './models/leaf'
 let Plants = require('./plant')
 
-var delay = 0
-var counter = 60 * delay
+
+let fps = new Stats()
+let mem = new Stats()
+fps.showPanel(0)
+mem.showPanel(1)
+document.getElementById('fps').appendChild(fps.dom)
+document.getElementById('mem').appendChild(mem.dom)
+
 var animationLoopId
-let plantAlive = true
-const tick = () => {
-  if (counter > (60 * delay)) {
-    counter = 0
-    plantAlive = testPlant.grow()
-    sceneComposer.render()
-  }
-  if (!plantAlive) {
-    console.info('cancel animation')
-    window.cancelAnimationFrame(animationLoopId)
-  } else {
-    animationLoopId = window.requestAnimationFrame(tick)
-  }
-  counter += 1
+const renderLoop = () => {
+  fps.begin()
+  mem.begin()
+  sceneComposer.render()
+  fps.end()
+  mem.end()
+  animationLoopId = window.requestAnimationFrame(renderLoop)
 }
 
-let testLeaf = new Leaf(new THREE.Vector3(5,5,5))
-
 let sceneComposer = new SceneComposer()
-sceneComposer.setupScene()
 let testPlant = new Plants.Plant()
+let testLeaf = new Leaf(new THREE.Vector3(5, 5, 5))
 
-testPlant.addSelfToScene(sceneComposer.scene)
-sceneComposer.scene.add(testLeaf.GetModel())
-window.setTimeout(() => {
-  console.log('Starting Light Scan')
-  let {scene, renderer, angledSun} = sceneComposer 
+sceneComposer.setupScene().then(() => {
+  testPlant.addSelfToScene(sceneComposer.scene)
+  sceneComposer.scene.add(testLeaf.GetModel())
+  sceneComposer.scene.add(testLeaf.lightModel)
+  animationLoopId = window.requestAnimationFrame(renderLoop)
+  logicLoop()
+})
+
+let plantAlive = true
+const logicLoop = () => {
+  console.log('Logic Loop Start')
+  let { scene, renderer, angledSun } = sceneComposer
+  console.time("ls")
   let lightInfo = testLeaf.ReadLightInformation(renderer, scene, new THREE.OrthographicCamera(), angledSun, true)
-  console.log(lightInfo)
-  sceneComposer.render()
-}, 2000);
-animationLoopId = window.requestAnimationFrame(tick)
-// cancelAnimationFrame(animationLoopId);
+  console.timeEnd("ls")
+  console.info(lightInfo)
+
+  if (plantAlive) {
+    plantAlive = testPlant.grow()
+  }
+  // window.cancelAnimationFrame(animationLoopId)
+
+  setTimeout(logicLoop, 1000)
+}
