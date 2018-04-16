@@ -7,19 +7,24 @@ let Plants = require('./plant')
 
 
 let fps = new Stats()
+let ms = new Stats()
 let mem = new Stats()
 fps.showPanel(0)
-mem.showPanel(1)
+ms.showPanel(1)
+mem.showPanel(2)
 document.getElementById('fps').appendChild(fps.dom)
+document.getElementById('ms').appendChild(ms.dom)
 document.getElementById('mem').appendChild(mem.dom)
 
 var animationLoopId
 const renderLoop = () => {
   fps.begin()
+  ms.begin()
   mem.begin()
   sceneComposer.render()
   fps.end()
-  mem.end()
+  ms.end()
+  mem.begin()
   animationLoopId = window.requestAnimationFrame(renderLoop)
 }
 
