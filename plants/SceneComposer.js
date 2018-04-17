@@ -48,7 +48,7 @@ class SceneComposer {
 
     this.lightingSpike()
 
-    this.camera.position.set(20, 50, 150)
+    this.camera.position.set(10, 10, 5)
     this.camera.lookAt(new THREE.Vector3(5, 5, 5))
     // this.camera.lookAt(this.sphere.position)
   }
