@@ -2,6 +2,8 @@ import fs from 'fs'
 import * as THREE from 'three'
 import RNG from 'random-seed'
 
+// PETIOLE -> stalk that attaches leave to stem (https://en.wikipedia.org/wiki/Petiole_(botany))
+
 class Leaf {
   constructor(position) {
     this.name = RNG.create('seed').string(12)
@@ -94,13 +96,11 @@ class Leaf {
     let { x, y, z } = this.model.position
     let normalVector = new THREE.Vector3(0, 0, 1).applyQuaternion(this.model.quaternion)
     let rotNormalVect = normalVector.clone()
-    // rotNormalVect.applyAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2)
     let dx = x + (rotNormalVect.z * this.length / 2)
     let dy = y + (rotNormalVect.x * this.length / 2)
     let dz = z + (-rotNormalVect.y * this.length / 2)
     camera.position.set(dx, dy, dz)
     camera.position.add(normalVector.multiplyScalar(0.1))
-    // camera.lookAt(this.model.position)
     camera.lookAt(new THREE.Vector3(dx, dy, dz))
   }
 }

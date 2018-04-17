@@ -1,9 +1,11 @@
 import { Vector3, Line3, FrontSide, Mesh, CylinderGeometry, MeshBasicMaterial, MeshLambertMaterial } from 'three'
+import * as RNG from 'random-seed'
 import { HightlightVerticies } from '../helpers/RenderUtils'
 
 class Sprout {
   constructor(config) {
-    let { startPosition, endPosition, startDiameter, endDiameter, maxLength, faceCount, growthFunction } = config || {}
+    let { startPosition, endPosition, startDiameter, endDiameter, maxLength, faceCount, growthFunction, rng, isBase } = config || {}
+    this.rng = rng || RNG.create()
     if (startDiameter) this.startDiameter = startDiameter || 1
     if (endDiameter) this.endDiameter = endDiameter || 1
     startPosition = startPosition || new Vector3()
@@ -12,10 +14,16 @@ class Sprout {
     this.faceCount = faceCount || 8
     this.growthFunction = growthFunction || (x => { return 1 * x }) // y = mx + c where m=1 and c=0
 
+    this.id = this.rng.string(16)
+    this.isBase = isBase || false
+    this.nextStemId = ''
+    this.previousStemId = ''
     this.isAtMaxLength = false
     this.isLeader = true
     this.guide = new Line3(startPosition, endPosition)
-    this.verticies = []
+
+    // research -> https://en.wikipedia.org/wiki/Leaf#Arrangement_on_the_stem
+    this.buds = []
 
     // Want to be able to use this::GenerateVerticies() syntax. Keep an eye out on ES proposals
   }
