@@ -19,12 +19,10 @@ document.getElementById('mem').appendChild(mem.dom)
 var animationLoopId
 const renderLoop = () => {
   fps.begin()
-  ms.begin()
   mem.begin()
   sceneComposer.render()
   fps.end()
-  ms.end()
-  mem.begin()
+  mem.end()
   animationLoopId = window.requestAnimationFrame(renderLoop)
 }
 
@@ -33,26 +31,22 @@ let testPlant = new Plants.Plant()
 let testLeaf = new Leaf(new THREE.Vector3(5, 5, 5))
 
 sceneComposer.setupScene().then(() => {
-  testPlant.addSelfToScene(sceneComposer.scene)
-  sceneComposer.scene.add(testLeaf.GetModel())
-  sceneComposer.scene.add(testLeaf.lightModel)
+  testPlant.PrepareRender(sceneComposer.scene)
   animationLoopId = window.requestAnimationFrame(renderLoop)
   logicLoop()
 })
 
 let plantAlive = true
 const logicLoop = () => {
+  ms.begin()  
   console.log('Logic Loop Start')
   let { scene, renderer, angledSun } = sceneComposer
-  console.time("ls")
-  let lightInfo = testLeaf.ReadLightInformation(renderer, scene, new THREE.OrthographicCamera(), angledSun, true)
-  console.timeEnd("ls")
-  console.info(lightInfo)
+  // let lightInfo = testLeaf.ReadLightInformation(renderer, scene, new THREE.OrthographicCamera(), angledSun, true)
 
   if (plantAlive) {
-    plantAlive = testPlant.grow()
+    plantAlive = testPlant.ProcessLogic(scene)
   }
   // window.cancelAnimationFrame(animationLoopId)
-
+  ms.end()  
   setTimeout(logicLoop, 1000)
 }

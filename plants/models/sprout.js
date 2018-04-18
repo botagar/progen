@@ -1,5 +1,6 @@
 import { Vector3, Line3, FrontSide, Mesh, CylinderGeometry, MeshBasicMaterial, MeshLambertMaterial } from 'three'
 import * as RNG from 'random-seed'
+import Bud from './bud'
 import { HightlightVerticies } from '../helpers/RenderUtils'
 
 class Sprout {
@@ -16,26 +17,61 @@ class Sprout {
 
     this.id = this.rng.string(16)
     this.isBase = isBase || false
-    this.nextStemId = ''
-    this.previousStemId = ''
+    this.nextStemId = null
+    this.previousStemId = null
     this.isAtMaxLength = false
+    this.isInScene = false
     this.isLeader = true
     this.guide = new Line3(startPosition, endPosition)
 
     // research -> https://en.wikipedia.org/wiki/Leaf#Arrangement_on_the_stem
     this.buds = []
-
+    if (this.nextStemId == null) {
+      let apicalBud = new Bud({
+        sproutId: this.id,
+        position: endPosition,
+        radius: 1
+      })
+      this.buds.push(apicalBud)
+    }
     // Want to be able to use this::GenerateVerticies() syntax. Keep an eye out on ES proposals
   }
 
-  getModel() {
-    let generatedModel = this._private.GenerateMesh()
-    let ret = {}
-    ret.add = generatedModel
-    if (this.model) ret.remove = this.model
-    this.model = generatedModel
-    this._private.UpdateVerts()
-    return ret
+  PrepareRender(scene, options) {    
+    this.buds.forEach(bud => {
+      bud.PrepareRender(scene, options)
+    })
+    if (this.isInScene) return null
+    if (!this.model) { this.model = this._private.GenerateMesh() }
+    // if (!this.lightModel) { this.lightModel = this._private.GenerateLightMesh() }
+    scene.add(this.model)
+    // scene.add(this.lightModel)
+    this.isInScene = true
+  }
+
+  ProcessLogic(scene, options) {
+    if (!this.model) this.PrepareRender(scene)
+    this.Grow()
+    this.buds.forEach(bud => {
+      bud.ProcessLogic(scene, {
+        position: this.guide.end
+      })
+    })
+  }
+
+  // getModel() {
+  //   let generatedModel = this._private.GenerateMesh()
+  //   let ret = {}
+  //   ret.add = generatedModel
+  //   if (this.model) ret.remove = this.model
+  //   this.model = generatedModel
+  //   this._private.UpdateVerts()
+  //   return ret
+  // }
+
+  Grow = () => {
+    this.growthFunction(1)
+    return this.TryGrowBy(0.25)
   }
 
   TryGrow = () => {
@@ -80,7 +116,6 @@ class Sprout {
         // wireframe: true
       }
 
-      let basicMaterial = new MeshBasicMaterial(materialConfig)
       let lambertMaterial = new MeshLambertMaterial(materialConfig)
 
       let mesh = new Mesh(sproutGeometry, lambertMaterial)
@@ -106,6 +141,9 @@ class Sprout {
       topCircleVerts.forEach(vert => {
         vert.sub(diff)
       })
+    },
+    GenerateLightMesh: () => {
+      return {}
     }
   }
 }
