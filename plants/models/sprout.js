@@ -5,7 +5,7 @@ import { HightlightVerticies } from '../helpers/RenderUtils'
 
 class Sprout {
   constructor(config) {
-    let { startPosition, endPosition, startDiameter, endDiameter, maxLength, faceCount, growthFunction, rng, isBase } = config || {}
+    let { startPosition, endPosition, startDiameter, endDiameter, maxLength, faceCount, growthFunction, rng, isBase, previousStemId } = config || {}
     this.rng = rng || RNG.create()
     if (startDiameter) this.startDiameter = startDiameter || 1
     if (endDiameter) this.endDiameter = endDiameter || 1
@@ -18,7 +18,7 @@ class Sprout {
     this.id = this.rng.string(16)
     this.isBase = isBase || false
     this.nextStemId = null
-    this.previousStemId = null
+    this.previousStemId = previousStemId || null
     this.isAtMaxLength = false
     this.isInScene = false
     this.isLeader = true
@@ -51,32 +51,32 @@ class Sprout {
 
   ProcessLogic(scene, options) {
     if (!this.model) this.PrepareRender(scene)
-    this.Grow()
+    let out = []
+    let didGrow = this.Grow()
+    if (didGrow) {
+      out.push({ action: 'DidGrow' })
+    } else {
+      out.push({ action: 'DidNotGrow' })
+    }
+    if (!didGrow && this.isAtMaxLength == false) {
+      this.isAtMaxLength = true
+      out.push({
+        action: 'CreateNewSprout',
+        sprout: this
+      })
+      console.log('should create new sprout')
+    }
     this.buds.forEach(bud => {
       bud.ProcessLogic(scene, {
         position: this.guide.end
       })
     })
+    return out
   }
-
-  // getModel() {
-  //   let generatedModel = this._private.GenerateMesh()
-  //   let ret = {}
-  //   ret.add = generatedModel
-  //   if (this.model) ret.remove = this.model
-  //   this.model = generatedModel
-  //   this._private.UpdateVerts()
-  //   return ret
-  // }
 
   Grow = () => {
     this.growthFunction(1)
     return this.TryGrowBy(0.25)
-  }
-
-  TryGrow = () => {
-    this.growthFunction(1)
-    return this.TryGrowBy(1)
   }
 
   TryGrowBy(mm) {
@@ -84,7 +84,6 @@ class Sprout {
 
     let currentLength = this.guide.distance()
     if (currentLength >= this.maxLength) {
-      this.isAtMaxLength = true
       return false
     }
 

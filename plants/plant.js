@@ -20,7 +20,7 @@ let Stems = require('./stem')
 let { Vector2, Vector3 } = THREE
 
 class Plant {
-  constructor (dna) {
+  constructor(dna) {
     this.debug = {}
     this.debug.growCallCount = 0
 
@@ -59,7 +59,7 @@ class Plant {
 
   PrepareRender(scene, options) {
     if (!scene) return console.error('Must include scene to render too.')
-    this.sprouts.forEach(sprout => {      
+    this.sprouts.forEach(sprout => {
       sprout.PrepareRender(scene)
     })
     this.roots.forEach(root => {
@@ -72,46 +72,59 @@ class Plant {
       console.warn('plant has died')
       return false
     }
-    this.grow(scene)
+    let returnedActions = []
     this.sprouts.forEach(sprout => {
-      sprout.ProcessLogic(scene)
+      let ra = sprout.ProcessLogic(scene)
+      returnedActions = returnedActions.concat(ra)
     })
     this.roots.forEach(root => {
       root.ProcessLogic(scene)
+    })
+    returnedActions.forEach(action => {
+      this.doAction(action)
     })
     this.PrepareRender(scene)
     return true
   }
 
-  serialise () { }
-  deserialise () { }
+  Render(dt) {
 
-  grow (scene) {
-    this.debug.growCallCount += 1
-    let nursury = []
-    for (let sprout of this.sprouts) {
-      let didSproutGrow = sprout.TryGrow()
-      if (!didSproutGrow && sprout.isLeader) {
-        this.energy -= this.energyUsedPerSproutOnMaintainance
-        let newSprout = this._growNewSprout(sprout)
-        nursury.push(newSprout)
-        sprout.isLeader = false
-      } else {
-        this.energy -= this.energyUsedPerSproutGrowth
-      }
-    }
-    this.sprouts = this.sprouts.concat(nursury)
-    return true
   }
 
-  _growNewSprout (oldSprout) {
+  doAction(action) {
+    switch (action.action) {
+      case 'DidGrow':
+        this.energy -= this.energyUsedPerSproutGrowth
+        break
+      case 'DidNotGrow':
+        this.energy -= this.energyUsedPerSproutOnMaintainance
+        break
+      case 'CreateNewSprout':
+        this.createNewSprout(action.sprout)
+        break
+      default:
+        console.warn(`Unhandled Action: ${action.action}`)
+    }
+  }
+
+  createNewSprout(oldSprout) {
+    console.log('Create New Sprout')
     let halfSenseAngle = this.budPerceptionArcAngle / 2
     let growthDir = this.RNG.floatBetween(-halfSenseAngle, halfSenseAngle) + (Math.PI / 2)
     let growthHead = new Vector3(Math.cos(growthDir), Math.sin(growthDir), 0)
       .multiplyScalar(this.sproutGrowthSpeed)
       .add(oldSprout.guide.end)
-    return new Sprout({ startPosition: oldSprout.guide.end, endPosition: growthHead, faceCount: 6 })
+    let newSprout = new Sprout({
+      previousStemId: oldSprout.id,
+      startPosition: oldSprout.guide.end,
+      endPosition: growthHead,
+      faceCount: 6
+    })
+    this.sprouts.push(newSprout)
   }
+
+  serialise() { }
+  deserialise() { }
 }
 
 module.exports = {
