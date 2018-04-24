@@ -42,11 +42,11 @@ class Tree extends Flora {
     this.branchGravitropism = 1.0
     this.rootGravitropism = -1.0
     this.branchingAngles = 90
-    this.budPerceptionArcAngle = 10 * Math.PI / 180
+    this.budPerceptionArcAngle = 60 * Math.PI / 180
 
     let halfSenseAngle = this.budPerceptionArcAngle / 2
     let growthDir = this.RNG.floatBetween(-halfSenseAngle, halfSenseAngle) + (Math.PI / 2)
-    let growthHead = new Vector3(Math.cos(growthDir), Math.sin(growthDir), 0)
+    let growthHead = new Vector3(Math.cos(growthDir), Math.sin(growthDir), Math.cos(growthDir))
       .multiplyScalar(this.sproutGrowthSpeed)
     let seed = new Stem({ startPosition: new Vector3(), endPosition: growthHead, faceCount: 6 })
     this.sprouts = [seed]
@@ -110,7 +110,7 @@ class Tree extends Flora {
     console.log('Create New Sprout')
     let halfSenseAngle = this.budPerceptionArcAngle / 2
     let growthDir = this.RNG.floatBetween(-halfSenseAngle, halfSenseAngle) + (Math.PI / 2)
-    let growthHead = new Vector3(Math.cos(growthDir), Math.sin(growthDir), 0)
+    let growthHead = new Vector3(Math.cos(growthDir), Math.sin(growthDir), Math.cos(growthDir))
       .multiplyScalar(this.sproutGrowthSpeed)
       .add(oldSprout.guide.end)
     let newSprout = new Stem({

@@ -2,6 +2,7 @@ import { Vector3, Line3, FrontSide, Mesh, CylinderGeometry, MeshBasicMaterial, M
 import * as RNG from 'random-seed'
 import Bud from './bud'
 import Line from '../helpers/line'
+import VectorHelper from '../helpers/VectorHelper'
 
 class Stem {
   constructor(config) {
@@ -57,18 +58,10 @@ class Stem {
 
   ProcessLogic(scene, options) {
     if (!this.model) this.PrepareRender(scene)
-    // Bud grow spike section //
-    if (!this.normDrawn) {
-      let newXY = (this.guide.end.clone().normalize().applyAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2))
-      newXY.add(this.guide.end.clone())
-      new Line(this.guide.end.clone(), newXY).draw(scene)
-      this.normDrawn = true
-    }
-    // END //
     let out = []
     let didGrow = this.Grow()
     if (didGrow) {
-      this._private.GenerateNewBud()
+      this._private.GenerateNewBud(scene)
       out.push({ action: 'DidGrow' })
     } else {
       out.push({ action: 'DidNotGrow' })
@@ -79,7 +72,6 @@ class Stem {
         action: 'CreateNewSprout',
         sprout: this
       })
-      console.log('should create new sprout')
     }
     this.buds.forEach(bud => {
       bud.ProcessLogic(scene, {
@@ -159,18 +151,18 @@ class Stem {
     GenerateLightMesh: () => {
       return {}
     },
-    GenerateNewBud: () => {
+    GenerateNewBud: (scene) => {
       if (!this.seq) this.seq = 1
 
-      let xy = (seq) => {
-        let newXY = this.guide.end.clone().normalize().applyAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2)
-        newXY.add(this.guide.end)
-        newXY.applyAxisAngle(this.guide.end.clone().normalize(), this.budAngles * seq)
-        return newXY
-      }
+      this.normalVectToGrowth = VectorHelper.CalculateNormal(this.projectedEnd.clone()).add(this.guide.end)
+      let budLine = this.normalVectToGrowth.clone()
+        .applyAxisAngle(this.guide.end.clone().normalize(), this.budAngles * this.seq)
+
+      new Line(this.guide.end.clone(), budLine).draw(scene)
+
       let bud = new Bud({
         sproutId: this.id,
-        position: xy(this.seq),
+        position: budLine,
         radius: 0.2
       })
       this.buds.push(bud)
