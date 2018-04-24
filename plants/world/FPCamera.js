@@ -15,6 +15,16 @@ class FPCamera {
 
     document.addEventListener('keydown', this.onKeyDown, false)
     document.addEventListener('keyup', this.onKeyUp, false)
+    document.addEventListener('wheel', this.onScroll, false);
+  }
+
+  onScroll = event => {
+    if (event.deltaY > 0) {
+      //scrolling down
+      this.fpCam.translateY(-1)
+    } else {
+      this.fpCam.translateY(1)
+    }
   }
 
   onKeyDown = (event) => {
@@ -78,8 +88,6 @@ class FPCamera {
     this.velocity.x -= this.velocity.x * 10.0 * delta
     this.velocity.z -= this.velocity.z * 10.0 * delta
 
-    this.velocity.y -= 9.8 * 100.0 * delta // 100.0 = mass
-
     this.direction.z = Number(this.moveForward) - Number(this.moveBackward)
     this.direction.x = Number(this.moveLeft) - Number(this.moveRight)
     this.direction.normalize(); // this ensures consistent movements in all directions
@@ -90,12 +98,6 @@ class FPCamera {
     this.fpCam.translateX(this.velocity.x * delta)
     this.fpCam.translateY(this.velocity.y * delta)
     this.fpCam.translateZ(this.velocity.z * delta)
-
-    if (this.fpCam.position.y < 1) {
-
-      this.velocity.y = 0
-      this.fpCam.position.y = 1
-    }
 
     this.prevTime = time
   }

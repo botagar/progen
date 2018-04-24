@@ -161,13 +161,10 @@ class Stem {
     },
     GenerateNewBud: () => {
       if (!this.seq) this.seq = 1
-      let newBudX = (seqNo, startingAngle) => { return Math.cos(this.budAngles * seqNo) }
-      let newBudY = (seqNo, startingAngle) => { return Math.sin(this.budAngles * seqNo) }
-      let newBudZ = (seqNo, startingAngle) => { return seqNo }
 
       let xy = (seq) => {
         let newXY = this.guide.end.clone().normalize().applyAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2)
-        newXY.add(this.guide.end.clone())
+        newXY.add(this.guide.end)
         newXY.applyAxisAngle(this.guide.end.clone().normalize(), this.budAngles * seq)
         return newXY
       }
@@ -178,7 +175,6 @@ class Stem {
       })
       this.buds.push(bud)
       this.seq += 1
-      // let growthVectNormal = new THREE.Vector3(0, 0, 1).applyQuaternion(this.model.quaternion)
     }
   }
 }
