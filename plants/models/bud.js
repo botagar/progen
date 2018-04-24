@@ -38,7 +38,7 @@ class Bud {
   ProcessLogic(scene, options) {
     if (!this.model) this.PrepareRender(scene)
     let { position } = options
-    let { x, y, z } = position
+    let { x, y, z } = this.position || position
     this.model.position.set(x, y, z)
   }
 
@@ -51,7 +51,11 @@ class Bud {
   _private = {
     GenerateMesh: () => {
       let geometry = new THREE.SphereGeometry(this.radius, 32, 32)
-      let material = new THREE.MeshBasicMaterial({ color: 0xff00ff })
+      let material = new THREE.MeshBasicMaterial({
+        color: 0xff00ff,
+        transparent: true,
+        opacity: 0.5,
+      })
       let sphere = new THREE.Mesh(geometry, material)
       let { x, y, z } = this.position
       sphere.position.set(x, y, z)

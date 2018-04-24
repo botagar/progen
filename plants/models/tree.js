@@ -10,17 +10,16 @@
 // Bud Perception
 // Other stuff about flowers, fruiting and seeds
 
-import DNA from './dna'
-import { HightlightVerticies } from './helpers/RenderUtils'
-import Sprout from './models/sprout'
-
-let THREE = require('three')
-let RNG = require('random-seed')
-let Stems = require('./stem')
+import DNA from '../dna'
+import Flora from '../flora'
+import Stem from './stem'
+import RNG from 'random-seed'
+import * as THREE from 'three'
 let { Vector2, Vector3 } = THREE
 
-class Plant {
+class Tree extends Flora {
   constructor(dna) {
+    super()
     this.debug = {}
     this.debug.growCallCount = 0
 
@@ -43,13 +42,13 @@ class Plant {
     this.branchGravitropism = 1.0
     this.rootGravitropism = -1.0
     this.branchingAngles = 90
-    this.budPerceptionArcAngle = 45 * Math.PI / 180
+    this.budPerceptionArcAngle = 10 * Math.PI / 180
 
     let halfSenseAngle = this.budPerceptionArcAngle / 2
     let growthDir = this.RNG.floatBetween(-halfSenseAngle, halfSenseAngle) + (Math.PI / 2)
     let growthHead = new Vector3(Math.cos(growthDir), Math.sin(growthDir), 0)
       .multiplyScalar(this.sproutGrowthSpeed)
-    let seed = new Sprout({ startPosition: new Vector3(), endPosition: growthHead, faceCount: 6 })
+    let seed = new Stem({ startPosition: new Vector3(), endPosition: growthHead, faceCount: 6 })
     this.sprouts = [seed]
     this.roots = []
 
@@ -114,7 +113,7 @@ class Plant {
     let growthHead = new Vector3(Math.cos(growthDir), Math.sin(growthDir), 0)
       .multiplyScalar(this.sproutGrowthSpeed)
       .add(oldSprout.guide.end)
-    let newSprout = new Sprout({
+    let newSprout = new Stem({
       previousStemId: oldSprout.id,
       startPosition: oldSprout.guide.end,
       endPosition: growthHead,
@@ -127,6 +126,4 @@ class Plant {
   deserialise() { }
 }
 
-module.exports = {
-  Plant
-}
+export default Tree

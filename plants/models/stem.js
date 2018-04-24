@@ -1,9 +1,9 @@
 import { Vector3, Line3, FrontSide, Mesh, CylinderGeometry, MeshBasicMaterial, MeshLambertMaterial } from 'three'
 import * as RNG from 'random-seed'
 import Bud from './bud'
-import { HightlightVerticies } from '../helpers/RenderUtils'
+import Line from '../helpers/line'
 
-class Sprout {
+class Stem {
   constructor(config) {
     let { startPosition, endPosition, startDiameter, endDiameter, maxLength, faceCount, growthFunction, rng, isBase, previousStemId } = config || {}
     this.rng = rng || RNG.create()
@@ -14,6 +14,10 @@ class Sprout {
     this.maxLength = maxLength || 5
     this.faceCount = faceCount || 8
     this.growthFunction = growthFunction || (x => { return 1 * x }) // y = mx + c where m=1 and c=0
+    this.projectedEnd = endPosition.clone().sub(startPosition).normalize().multiplyScalar(this.maxLength).add(startPosition)
+    this.budDensity = 5
+    this.budAngles = Math.PI / 4
+    this.distBetweenBuds = this.maxLength / this.budDensity
 
     this.id = this.rng.string(16)
     this.isBase = isBase || false
@@ -34,14 +38,16 @@ class Sprout {
       })
       this.buds.push(apicalBud)
     }
+
     // Want to be able to use this::GenerateVerticies() syntax. Keep an eye out on ES proposals
   }
 
-  PrepareRender(scene, options) {    
+  PrepareRender(scene, options) {
     this.buds.forEach(bud => {
       bud.PrepareRender(scene, options)
     })
     if (this.isInScene) return null
+    new Line(this.guide.start, this.projectedEnd).draw(scene)
     if (!this.model) { this.model = this._private.GenerateMesh() }
     // if (!this.lightModel) { this.lightModel = this._private.GenerateLightMesh() }
     scene.add(this.model)
@@ -51,9 +57,18 @@ class Sprout {
 
   ProcessLogic(scene, options) {
     if (!this.model) this.PrepareRender(scene)
+    // Bud grow spike section //
+    if (!this.normDrawn) {
+      let newXY = (this.guide.end.clone().normalize().applyAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2))
+      newXY.add(this.guide.end.clone())
+      new Line(this.guide.end.clone(), newXY).draw(scene)
+      this.normDrawn = true
+    }
+    // END //
     let out = []
     let didGrow = this.Grow()
     if (didGrow) {
+      this._private.GenerateNewBud()
       out.push({ action: 'DidGrow' })
     } else {
       out.push({ action: 'DidNotGrow' })
@@ -111,7 +126,7 @@ class Sprout {
         color: 0xaf6c15,
         side: FrontSide,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.5,
         // wireframe: true
       }
 
@@ -143,8 +158,29 @@ class Sprout {
     },
     GenerateLightMesh: () => {
       return {}
+    },
+    GenerateNewBud: () => {
+      if (!this.seq) this.seq = 1
+      let newBudX = (seqNo, startingAngle) => { return Math.cos(this.budAngles * seqNo) }
+      let newBudY = (seqNo, startingAngle) => { return Math.sin(this.budAngles * seqNo) }
+      let newBudZ = (seqNo, startingAngle) => { return seqNo }
+
+      let xy = (seq) => {
+        let newXY = this.guide.end.clone().normalize().applyAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2)
+        newXY.add(this.guide.end.clone())
+        newXY.applyAxisAngle(this.guide.end.clone().normalize(), this.budAngles * seq)
+        return newXY
+      }
+      let bud = new Bud({
+        sproutId: this.id,
+        position: xy(this.seq),
+        radius: 0.2
+      })
+      this.buds.push(bud)
+      this.seq += 1
+      // let growthVectNormal = new THREE.Vector3(0, 0, 1).applyQuaternion(this.model.quaternion)
     }
   }
 }
 
-export default Sprout
+export default Stem

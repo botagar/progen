@@ -1,9 +1,9 @@
 
 import * as THREE from 'three'
 import Stats from 'stats.js'
-import SceneComposer from './SceneComposer'
+import SceneComposer from './world/SceneComposer'
 import Leaf from './models/leaf'
-let Plants = require('./plant')
+import Tree from './models/tree'
 
 
 let fps = new Stats()
@@ -27,7 +27,7 @@ const renderLoop = () => {
 }
 
 let sceneComposer = new SceneComposer()
-let testPlant = new Plants.Plant()
+let testPlant = new Tree()
 let testLeaf = new Leaf(new THREE.Vector3(5, 5, 5))
 
 sceneComposer.setupScene().then(() => {
@@ -39,7 +39,6 @@ sceneComposer.setupScene().then(() => {
 let plantAlive = true
 const logicLoop = () => {
   ms.begin()  
-  console.log('Logic Loop Start')
   let { scene, renderer, angledSun } = sceneComposer
   // let lightInfo = testLeaf.ReadLightInformation(renderer, scene, new THREE.OrthographicCamera(), angledSun, true)
 
@@ -48,5 +47,5 @@ const logicLoop = () => {
   }
   // window.cancelAnimationFrame(animationLoopId)
   ms.end()  
-  setTimeout(logicLoop, 1000)
+  setTimeout(logicLoop, 100)
 }

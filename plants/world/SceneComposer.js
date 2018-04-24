@@ -1,9 +1,9 @@
 import 'babel-polyfill'
 import fs from 'fs'
 import * as THREE from 'three'
-import ShadowMapViewer from './helpers/ShadowMapViewer'
 import Skybox from './Skybox'
 import Floor from './FloorPlane'
+import FPCamera from '../world/FPCamera'
 
 class SceneComposer {
   constructor(containerId, fov, viewWidth, viewHeight, aspectRatio, nearPlane, farPlane) {
@@ -25,9 +25,22 @@ class SceneComposer {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap // default THREE.PCFShadowMap
 
     document.getElementById(containerId).appendChild(this.renderer.domElement)
+    window.addEventListener('resize', this.onWindowResize, false);
+  }
+
+  onWindowResize() {
+
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+
   }
 
   async setupScene() {
+    let axesHelper = new THREE.AxesHelper(5)
+    this.scene.add(axesHelper)
+
     let sky = await Skybox()
     this.scene.add(sky)
     this.scene.add(Floor)
@@ -44,9 +57,12 @@ class SceneComposer {
     this.angledSun.shadow.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000)
     this.scene.add(this.angledSun)
 
-    this.camera.position.set(50, 50, 5)
+    this.camera.position.set(5, 15, 30)
     this.camera.lookAt(new THREE.Vector3(5, 5, 5))
-    // this.camera.lookAt(this.sphere.position)
+
+    this.fpCameraController = new FPCamera(this.camera)
+    this.fpCamera = this.fpCameraController.getCamera()
+    this.scene.add(this.fpCamera)
   }
 
   addToScene(object) {
@@ -54,8 +70,7 @@ class SceneComposer {
   }
 
   render() {
-    // this.dirLightShadowMapViewer.render( this.renderer );
-    // this.uniforms.time.value += (1 / 60) * 5;
+    this.fpCameraController.update()
     this.renderer.render(this.scene, this.camera)
   }
 }
