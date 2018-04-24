@@ -16,7 +16,7 @@ class Stem {
     this.faceCount = faceCount || 8
     this.growthFunction = growthFunction || (x => { return 1 * x }) // y = mx + c where m=1 and c=0
     this.projectedEnd = endPosition.clone().sub(startPosition).normalize().multiplyScalar(this.maxLength).add(startPosition)
-    this.budDensity = 5
+    this.budDensity = 15
     this.budAngles = Math.PI / 4
     this.distBetweenBuds = this.maxLength / this.budDensity
 
@@ -61,7 +61,7 @@ class Stem {
     let out = []
     let didGrow = this.Grow()
     if (didGrow) {
-      this._private.GenerateNewBud(scene)
+      this._private.TryGenerateNewBud(scene)
       out.push({ action: 'DidGrow' })
     } else {
       out.push({ action: 'DidNotGrow' })
@@ -151,12 +151,15 @@ class Stem {
     GenerateLightMesh: () => {
       return {}
     },
-    GenerateNewBud: (scene) => {
-      if (!this.seq) this.seq = 1
+    TryGenerateNewBud: (scene) => {
+      let budNum = this.buds.length
+      let stemLength = this.guide.distance()
+      let placeBud = stemLength >= (budNum * this.distBetweenBuds)
+      if (!placeBud) return false
 
       this.normalVectToGrowth = VectorHelper.CalculateNormal(this.projectedEnd.clone()).add(this.guide.end)
       let budLine = this.normalVectToGrowth.clone()
-        .applyAxisAngle(this.guide.end.clone().normalize(), this.budAngles * this.seq)
+        .applyAxisAngle(this.guide.end.clone().normalize(), this.budAngles * budNum)
 
       new Line(this.guide.end.clone(), budLine).draw(scene)
 
@@ -166,7 +169,6 @@ class Stem {
         radius: 0.2
       })
       this.buds.push(bud)
-      this.seq += 1
     }
   }
 }
