@@ -1,4 +1,4 @@
-import '../../node_modules/three/examples/js/controls/PointerLockControls'
+import '../../../node_modules/three/examples/js/controls/PointerLockControls'
 
 class FPCamera {
   constructor(camera) {

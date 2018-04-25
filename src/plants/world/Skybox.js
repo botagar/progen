@@ -6,7 +6,7 @@ const Skybox = () => {
   let loader = new THREE.TextureLoader()
   let skyboxPromise = new Promise((resolve, reject) => {
     loader.load(
-      '../images/skybox1.jpg',
+      '../../images/skybox1.jpg',
       texture => {
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
