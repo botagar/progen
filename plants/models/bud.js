@@ -1,5 +1,7 @@
+import Eventable from 'events'
 import * as THREE from 'three'
 import * as RNG from 'random-seed'
+import ColorUtil from '../helpers/ColorUtil'
 
 // https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Plant_Buds_clasification.svg/2000px-Plant_Buds_clasification.svg.png
 // http://images.slideplayer.com/16/5125130/slides/slide_2.jpg
@@ -9,18 +11,22 @@ const BUD_TYPES = ['APICAL', 'AXILLARY', 'PETIOLE']
 
 
 
-class Bud {
+class Bud extends Eventable {
   constructor(config) {
-    let { sproutId, position, radius, apicalDominance, rng } = config
+    super()
+    let { stem, position, radius, apicalDominance, rng, isApicalBud, distanceFromBaseOfStem } = config
     this.rng = rng || RNG.create()
     this.budId = this.rng.string(16)
-    this.sproutId = sproutId || console.error('Cannot have a bud not associated with a sprout!')
-    this.position = position || console.error('Sprout must give bud its position')
+    this.stem = stem || console.error('Cannot have a bud not associated with a stem!')
+    this.position = position || console.error('Stem must give bud its position')
+    this.distanceFromBaseOfStem = distanceFromBaseOfStem || 0
     this.radius = radius || 1
+    this.isApicalBud = isApicalBud || false
     this.startingApicalDominance = apicalDominance
     this.leadershipBias = 1
     this.auxinGeneration = 1
-    this.auxinTolerance = 0.5
+    this.auxinTolerance = 5
+    this.auxinLevel = 0
 
     this.isInScene = false
     this.currentAuxinLevel = 0
@@ -28,24 +34,36 @@ class Bud {
 
   PrepareRender(scene, options) {
     if (this.isInScene) return null
-    if (!this.model) { this.model = this._private.GenerateMesh() }
+    if (!this.mesh) { this.mesh = this._private.GenerateMesh() }
     // if (!this.lightModel) { this.lightModel = this._private.GenerateLightMesh() }
-    scene.add(this.model)
+    scene.add(this.mesh)
     // scene.add(this.lightModel)
     this.isInScene = true
   }
 
   ProcessLogic(scene, options) {
-    if (!this.model) this.PrepareRender(scene)
-    let { position } = options
+    if (!this.mesh) this.PrepareRender(scene)
+    let pendingActions = []
+    let { position, auxinLevel } = options
+    if (this.isApicalBud) {
+      this.emit('AuxinProduced', this.auxinGeneration)
+    } else {
+      this.auxinLevel = auxinLevel || 0
+      // HACK just for now
+      if (this.auxinLevel < 0) this.auxinLevel = 0
+      // END HACK
+      let newColor = ColorUtil.GetColorBetween('#0000FF', '#FF0000', this.auxinLevel / this.auxinTolerance, 16).replace('#', '0x')
+      this.mesh.material.color.setHex(newColor)
+    }
     let { x, y, z } = this.position || position
-    this.model.position.set(x, y, z)
+    this.mesh.position.set(x, y, z)
+    return pendingActions
   }
 
   GetModel() {
-    this.model = this._private.GenerateMesh()
+    this.mesh = this._private.GenerateMesh()
     this.lightModel = this._private.GenerateLightMesh()
-    return this.model
+    return this.mesh
   }
 
   _private = {
@@ -53,12 +71,13 @@ class Bud {
       let geometry = new THREE.SphereGeometry(this.radius, 32, 32)
       let material = new THREE.MeshBasicMaterial({
         color: 0xff00ff,
-        transparent: true,
+        transparent: false,
         opacity: 0.5,
       })
       let sphere = new THREE.Mesh(geometry, material)
       let { x, y, z } = this.position
       sphere.position.set(x, y, z)
+      sphere.name = this.budId
       return sphere
     },
     GenerateLightMesh: () => {

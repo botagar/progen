@@ -956,11 +956,23 @@ coffee-script@^1.10.0, coffee-script@^1.9.0:
   version "1.12.7"
   resolved "https://registry.yarnpkg.com/coffee-script/-/coffee-script-1.12.7.tgz#c05dae0cb79591d05b3070a8433a98c9a89ccc53"
 
+color-convert@^0.5.0:
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-0.5.3.tgz#bdb6c69ce660fadffe0b0007cc447e1b9f7282bd"
+
 color-convert@^1.3.0, color-convert@^1.9.0:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.1.tgz#c1261107aeb2f294ebffec9ed9ecad529a6097ed"
   dependencies:
     color-name "^1.1.1"
+
+color-lerp@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/color-lerp/-/color-lerp-1.0.5.tgz#ee2ae82860b74f745563754af210c806b3721529"
+  dependencies:
+    color "^0.8.0"
+    lerp "^1.0.3"
+    lodash-fp "^0.5.1"
 
 color-name@^1.0.0, color-name@^1.1.1:
   version "1.1.3"
@@ -978,6 +990,13 @@ color@^0.11.0:
   dependencies:
     clone "^1.0.2"
     color-convert "^1.3.0"
+    color-string "^0.3.0"
+
+color@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/color/-/color-0.8.0.tgz#890c07c3fd4e649537638911cf691e5458b6fca5"
+  dependencies:
+    color-convert "^0.5.0"
     color-string "^0.3.0"
 
 colormin@^1.0.5:
@@ -2430,6 +2449,10 @@ lcid@^1.0.0:
   dependencies:
     invert-kv "^1.0.0"
 
+lerp@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/lerp/-/lerp-1.0.3.tgz#a18c8968f917896de15ccfcc28d55a6b731e776e"
+
 less@^2.7.1:
   version "2.7.3"
   resolved "https://registry.yarnpkg.com/less/-/less-2.7.3.tgz#cc1260f51c900a9ec0d91fb6998139e02507b63b"
@@ -2484,6 +2507,16 @@ locate-path@^2.0.0:
   dependencies:
     p-locate "^2.0.0"
     path-exists "^3.0.0"
+
+lodash-compat@^3.0.0:
+  version "3.10.2"
+  resolved "https://registry.yarnpkg.com/lodash-compat/-/lodash-compat-3.10.2.tgz#c6940128a9d30f8e902cd2cf99fd0cba4ecfc183"
+
+lodash-fp@^0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/lodash-fp/-/lodash-fp-0.5.1.tgz#7503c3a29a8862375cf48eff63df7b81a859dc63"
+  dependencies:
+    lodash-compat "^3.0.0"
 
 lodash.assign@^4.0.3, lodash.assign@^4.0.6, lodash.assign@^4.2.0:
   version "4.2.0"
