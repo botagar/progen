@@ -10,6 +10,8 @@
 // Bud Perception
 // Other stuff about flowers, fruiting and seeds
 
+//@ts-check
+
 import DNA from '../dna'
 import Flora from '../flora'
 import Stem from './stem'
@@ -39,9 +41,8 @@ class Tree extends Flora {
     this.growthDirection = new Vector3(0, 1, 0)
     this.maxShootLength = 5
     this.apicalDominance = 1.0
-    this.auxinDecayRate = -1.0
+    this.auxinDecayRate = -0.5
     this.decayAuxin = (currentAuxin, distFromTopNode) => {
-      // console.log('dist: ', distFromTopNode, 'curren aux', currentAuxin)
       let newAux = (this.auxinDecayRate * distFromTopNode) + currentAuxin
       return newAux <= 0 ? 0 : newAux
     }
@@ -82,13 +83,6 @@ class Tree extends Flora {
     }
     this.stems.forEach((stem, index, collection) => {
       stem.ProcessLogic(scene)
-      // let eqn = (auxin, length) => { return auxin - (this.auxinDecayRate * length) }
-      // if (index > 0) {
-      //   sprout.auxinBottom = eqn(sprout.auxinTop, sprout.guide.distance())
-      //   collection[index - 1].auxinTop = sprout.auxinBottom
-      // } else {
-      //   sprout.auxinBottom = eqn(sprout.auxinTop, sprout.guide.distance())
-      // }
     })
     this.roots.forEach(root => {
       root.ProcessLogic(scene)

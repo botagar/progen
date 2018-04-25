@@ -38,7 +38,7 @@ class Stem extends EventEmitter {
     this.auxinBottom = startAuxin || 0
     this.calculateAuxin = bud => {
       let normalisedBudPosition = 1 - ((this.maxLength - bud.distanceFromBaseOfStem) / this.maxLength)
-      let auxVal = MathHelper.lerp(this.auxinBottom, this.auxinTop, normalisedBudPosition) //+ this.distFromApicalBud
+      let auxVal = MathHelper.lerp(this.auxinBottom, this.auxinTop, normalisedBudPosition)
       return auxVal
     }
 

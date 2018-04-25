@@ -49,11 +49,9 @@ class Bud extends Eventable {
       this.emit('AuxinProduced', this.auxinGeneration)
     } else {
       this.auxinLevel = auxinLevel || 0
-      // HACK just for now
-      if (this.auxinLevel < 0) this.auxinLevel = 0
-      // END HACK
       let newColor = ColorUtil.GetColorBetween('#0000FF', '#FF0000', this.auxinLevel / this.auxinTolerance, 16).replace('#', '0x')
       this.mesh.material.color.setHex(newColor)
+      this._private.TryGrow()
     }
     let { x, y, z } = this.position || position
     this.mesh.position.set(x, y, z)
@@ -80,8 +78,13 @@ class Bud extends Eventable {
       sphere.name = this.budId
       return sphere
     },
-    GenerateLightMesh: () => {
-
+    GenerateLightMesh: () => {},
+    TryGrow: () => {
+      let growthBarrier = this.auxinLevel / this.auxinTolerance
+      let growthAttempt = this.rng.random()
+      if (growthAttempt > growthBarrier) {
+        console.log('Bud wants to grow!')
+      }
     }
   }
 }

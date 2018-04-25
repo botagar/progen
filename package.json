@@ -17,7 +17,8 @@
     "babel-preset-env": "^1.6.1",
     "electron-compilers": "^5.9.0",
     "standard": "^11.0.1",
-    "stats.js": "^0.17.0"
+    "stats.js": "^0.17.0",
+    "typescript": "^2.8.3"
   },
   "dependencies": {
     "babel-plugin-transform-regenerator": "^6.26.0",
